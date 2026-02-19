@@ -1,0 +1,44 @@
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Build outputs
+dist/
+build/
+out/
+
+# Environment variables (CRITICAL: Never commit your DB password!)
+.env
+.env.local
+.env.*.local
+
+# Prisma-specific
+/prisma/migrations/
+# (Optional: Only ignore if you don't want to track your local SQLite db)
+# *.db
+# *.db-journal
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs
+*.log
+
+# Editor-specific (VS Code, JetBrains)
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+
+/src/generated/prisma
+
+/generated/prisma
