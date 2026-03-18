@@ -25,6 +25,7 @@ yarn-error.log*
 logs
 *.log
 
+
 # Editor-specific (VS Code, JetBrains)
 .vscode/
 .idea/
@@ -43,3 +44,6 @@ Thumbs.db
 
 /generated/prisma
 /migrations
+
+
+VIPASA-ERP-Build-Guide.html
