@@ -13,6 +13,15 @@ export const createApplicationSchema = z.object({
     clientNote: z.string().optional(),
 
     metadata: z.record(z.string(), z.unknown()).optional()
+})
 
-
+export const updateApplicationStatusSchema = z.object({
+    status: z.enum([
+        "Draft",
+        "PendingDocuments",
+        "UnderReview",
+        "Approved",
+        "Rejected",
+        "Completed"
+    ])
 })

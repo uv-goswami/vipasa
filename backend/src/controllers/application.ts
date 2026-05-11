@@ -2,14 +2,27 @@ import {Request, Response } from "express";
 import {prismaClient} from "../lib/prisma"
 import {Prisma} from "../../generated/prisma/client"
 
+
 export const createApplication = async (req: Request, res: Response) => {
     const {name, clientId, serviceId, priority, dueDate, description, internalNote, clientNote, metadata} = req.body;
 
     const staffId = (req as any).user?.id;
 
-    const applicationNo = `VIPSA-${Date.now()}`
 
+    
     try{
+
+            /* 
+
+                Here We will build the business logic to prevent double clicks for applicatuin creation
+
+
+            */
+
+
+        const applicationNo = `VIPSA-${Date.now()}`
+
+
         const newApplication = await prismaClient.application.create({
             data: {
                 name,
@@ -46,6 +59,49 @@ export const createApplication = async (req: Request, res: Response) => {
         }
         res.status(500).json({error: "Internal server error"})
     }
-
-
 } 
+
+export const updateApplicationStatus = async (req:Request, res: Response) => {
+    const id = req.params.id as string;
+    const {status} = req.body;
+    
+    if(!id){
+        return res.status(400).json({
+            error: "Application ID is required"
+        })
+    }
+    try{
+        const existingApplication = await prismaClient.application.findUnique({
+            where: { id }   
+        });
+
+        if(!existingApplication){
+            return res.status(404).json({
+                error: "Application not Found"
+            });
+        }
+
+        const updateData: any = {status};
+        if(status === 'Completed'&& existingApplication.status !== 'Completed'){
+            updateData.completedAt = new Date()
+        }
+
+        const updatedApplication = await prismaClient.application.update({
+            where: {id},
+            data: updateData
+        });
+
+        res.status(200).json({
+            message: "Application status updated successfully",
+            data: updatedApplication
+        })
+
+
+    }catch (error){
+        console.error("Error updating application status", error);
+        res.status(500).json({
+            error: "Internal Server Error"
+        })
+
+    }
+}

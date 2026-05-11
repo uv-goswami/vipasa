@@ -33,28 +33,28 @@ model Admin {
 }
 
 model ClientProfile {
-  userId          String        @id @map("user_id")
-  gender          Gender?       
-  fatherName      String?       @map("father_name")
-  dob             DateTime?
+  userId     String    @id @map("user_id")
+  gender     Gender?
+  fatherName String?   @map("father_name")
+  dob        DateTime?
 
-  addressLine     String?       @map("address_line")
-  city            String?
-  state           String?
-  pincode         String?
+  addressLine String? @map("address_line")
+  city        String?
+  state       String?
+  pincode     String?
 
-  aadharDocUrl    String?       @map("aadhar_doc_url")
-  panDocUrl       String?       @map("pan_doc_url")
-  taxId           String?       @map("tax_ID")
-  clientType      ClientType?    @map("client_type")
+  aadharDocUrl    String?     @map("aadhar_doc_url")
+  panDocUrl       String?     @map("pan_doc_url")
+  taxId           String?     @map("tax_ID")
+  clientType      ClientType? @map("client_type")
   industry        String?
-  riskScore       Int?          @map("risk_score")
-  assignedStaffId String?       @map("assigned_staff_id")
+  riskScore       Int?        @map("risk_score")
+  assignedStaffId String?     @map("assigned_staff_id")
 
-  applications    Application[]
-  staff           StaffProfile? @relation(fields: [assignedStaffId], references: [userId])
-  user            User          @relation(fields: [userId], references: [id])
-  documents       Document[]
+  applications Application[]
+  staff        StaffProfile? @relation(fields: [assignedStaffId], references: [userId])
+  user         User          @relation(fields: [userId], references: [id])
+  documents    Document[]
 
   @@map("client_profile")
 }
@@ -76,37 +76,38 @@ model StaffProfile {
 }
 
 model Application {
-  id            String        @id @default(uuid())
-  
+  id String @id @default(uuid())
+
   name          String
-  applicationNo String        @unique @map("application_no")
+  applicationNo String @unique @map("application_no")
 
-  clientId      String        @map("client_id")
-  serviceId     String
-  staffId       String?       @map("staff_id")
-  
-  status        Status        @default(Draft)
-  priority      Priority      @default(Normal)
+  clientId  String  @map("client_id")
+  serviceId String
+  staffId   String? @map("staff_id")
 
-  submittedAt   DateTime?     @map("submitted_at")
-  completedAt   DateTime?     @map("completed_at")
-  dueDate       DateTime?     @map("due_date")
-  updatedAt     DateTime      @updatedAt @map("updated_at")
+  status   Status   @default(Draft)
+  priority Priority @default(Normal)
 
-  decision      ApplicationDecision?
-  decisionReason String?      @map("decision_reason")
-  
-  description   String?
-  internalNote  String?       @map("internal_note")
-  clientNote    String?       @map("client_note")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  submittedAt DateTime? @map("submitted_at")
+  completedAt DateTime? @map("completed_at")
+  dueDate     DateTime? @map("due_date")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
 
-  metadata      Json?
+  decision       ApplicationDecision?
+  decisionReason String?              @map("decision_reason")
+
+  description  String?
+  internalNote String? @map("internal_note")
+  clientNote   String? @map("client_note")
+
+  metadata Json?
 
   //Relationship
-  client        ClientProfile @relation(fields: [clientId], references: [userId])
-  service       Service       @relation(fields: [serviceId], references: [id])
-  staff         StaffProfile? @relation(fields: [staffId], references: [userId])
-  documents     Document[]
+  client    ClientProfile @relation(fields: [clientId], references: [userId])
+  service   Service       @relation(fields: [serviceId], references: [id])
+  staff     StaffProfile? @relation(fields: [staffId], references: [userId])
+  documents Document[]
 
   @@map("application")
 }
@@ -175,7 +176,7 @@ enum Priority {
 }
 
 enum ApplicationDecision {
-  APPROVED
-  REJECTED
-  PENDING
+  Approved
+  Rejected
+  Pending     
 }
