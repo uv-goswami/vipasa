@@ -77,19 +77,32 @@ model StaffProfile {
 
 model Application {
   id            String        @id @default(uuid())
+  
   name          String
-  status        Status?
-  priority      Priority?
+  applicationNo String        @unique @map("application_no")
+
   clientId      String        @map("client_id")
+  serviceId     String
   staffId       String?       @map("staff_id")
-  lastDate      DateTime?     @map("last_date")
-  updatedAt     DateTime      @updatedAt @map("updated_at")
+  
+  status        Status        @default(Draft)
+  priority      Priority      @default(Normal)
+
   submittedAt   DateTime?     @map("submitted_at")
   completedAt   DateTime?     @map("completed_at")
+  dueDate       DateTime?     @map("due_date")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  decision      ApplicationDecision?
+  decisionReason String?      @map("decision_reason")
+  
   description   String?
   internalNote  String?       @map("internal_note")
-  serviceId     String
+  clientNote    String?       @map("client_note")
+
   metadata      Json?
+
+  //Relationship
   client        ClientProfile @relation(fields: [clientId], references: [userId])
   service       Service       @relation(fields: [serviceId], references: [id])
   staff         StaffProfile? @relation(fields: [staffId], references: [userId])
@@ -156,6 +169,13 @@ enum Status {
 
 enum Priority {
   Low
-  Medium
+  Normal
   High
+  Urgent
+}
+
+enum ApplicationDecision {
+  APPROVED
+  REJECTED
+  PENDING
 }

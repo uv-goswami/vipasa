@@ -20,7 +20,7 @@ export const registerClient = async (req: Request, res: Response) => {
                 email,
                 phone,
                 passwordHash: await bcrypt.hash(password, 10),
-                role: 'CLIENT',
+                role: 'Client',
                 client: {
                     create: {
                         gender,
