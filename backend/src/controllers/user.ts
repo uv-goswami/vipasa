@@ -34,7 +34,7 @@ export const updateMyProfile = async (req: Request, res: Response) => {
         const userId = (req as any).user.id;
         const {gender, industry, fatherName, dob} = req.body;
 
-        const Client = await prismaClient.ClientProfile.update({
+        const client = await prismaClient.clientProfile.update({
             where: {userId: userId},
             data:{
                 gender: gender,
@@ -53,7 +53,7 @@ export const updateMyProfile = async (req: Request, res: Response) => {
 
         return res.status(200).json({
             "message": "OK",
-            Client
+            client
         })
 
     }catch(error: unknown){

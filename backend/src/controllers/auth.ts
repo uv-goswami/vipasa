@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
 import { prismaClient } from "../lib/prisma"
 import bcrypt from "bcrypt";
-import { Prisma } from "../../generated/prisma/Client";
+import { Prisma } from "../../generated/prisma/client";
 import jwt from "jsonwebtoken"
 
 export const registerClient = async (req: Request, res: Response) => {
     const {email, phone, password, firstName, lastName, 
-        gender, industry, dob, fatherName, addressLine, city, state, pincode, ClientType
+        gender, industry, dob, fatherName, addressLine, city, state, pincode, clientType
     } = req.body;
 
     const currentStaffId = (req as any).user?.id || null;
@@ -20,21 +20,21 @@ export const registerClient = async (req: Request, res: Response) => {
                 email,
                 phone,
                 passwordHash: await bcrypt.hash(password, 10),
-                role: 'Client',
-                Client: {
+                role: 'CLIENT',
+                client: {
                     create: {
                         gender,
                         industry,
                         dob,
                         fatherName, addressLine, city,
                         state, pincode,
-                        ClientType,
+                        clientType,
                         assignedStaffId: currentStaffId
                     }
                 }
             },
 
-            select: {id: true, email:true, phone: true, Client: false}
+            select: {id: true, email:true, phone: true, client: false}
 
         })
 

@@ -18,9 +18,9 @@ model User {
   updatedAt    DateTime       @updatedAt @map("updated_at")
   firstName    String         @map("first_name")
   lastName     String?        @map("last_name")
-  Admin        Admin?
-  Client       ClientProfile?
-  Staff        StaffProfile?
+  admin        Admin?
+  client       ClientProfile?
+  staff        StaffProfile?
 
   @@map("user")
 }
@@ -29,7 +29,7 @@ model Admin {
   userId String @id @map("user_Id")
   user   User   @relation(fields: [userId], references: [id])
 
-  @@map("Admin")
+  @@map("admin")
 }
 
 model ClientProfile {
@@ -46,17 +46,17 @@ model ClientProfile {
   aadharDocUrl    String?       @map("aadhar_doc_url")
   panDocUrl       String?       @map("pan_doc_url")
   taxId           String?       @map("tax_ID")
-  ClientType      ClientType?    @map("Client_type")
+  clientType      ClientType?    @map("client_type")
   industry        String?
   riskScore       Int?          @map("risk_score")
-  assignedStaffId String?       @map("assigned_Staff_id")
+  assignedStaffId String?       @map("assigned_staff_id")
 
   applications    Application[]
-  Staff           StaffProfile? @relation(fields: [assignedStaffId], references: [userId])
+  staff           StaffProfile? @relation(fields: [assignedStaffId], references: [userId])
   user            User          @relation(fields: [userId], references: [id])
   documents       Document[]
 
-  @@map("Client_profile")
+  @@map("client_profile")
 }
 
 model StaffProfile {
@@ -72,7 +72,7 @@ model StaffProfile {
   assignedClients     ClientProfile[]
   user                User            @relation(fields: [userId], references: [id])
 
-  @@map("Staff_profile")
+  @@map("staff_profile")
 }
 
 model Application {
@@ -80,8 +80,8 @@ model Application {
   name          String
   status        Status?
   priority      Priority?
-  ClientId      String        @map("Client_id")
-  StaffId       String?       @map("Staff_id")
+  clientId      String        @map("client_id")
+  staffId       String?       @map("staff_id")
   lastDate      DateTime?     @map("last_date")
   updatedAt     DateTime      @updatedAt @map("updated_at")
   submittedAt   DateTime?     @map("submitted_at")
@@ -90,9 +90,9 @@ model Application {
   internalNote  String?       @map("internal_note")
   serviceId     String
   metadata      Json?
-  Client        ClientProfile @relation(fields: [ClientId], references: [userId])
+  client        ClientProfile @relation(fields: [clientId], references: [userId])
   service       Service       @relation(fields: [serviceId], references: [id])
-  Staff         StaffProfile? @relation(fields: [StaffId], references: [userId])
+  staff         StaffProfile? @relation(fields: [staffId], references: [userId])
   documents     Document[]
 
   @@map("application")
@@ -100,7 +100,7 @@ model Application {
 
 model Document {
   id            String         @id @default(uuid()) @map("doc_id")
-  ClientId      String?        @map("Client_Id")
+  clientId      String?        @map("client_Id")
   applicationId String?        @map("application_Id")
   name          String
   docUrl        String         @map("doc_url")
@@ -108,7 +108,7 @@ model Document {
   uploadedAt    DateTime       @default(now()) @map("uploaded_at")
   updatedAt     DateTime       @updatedAt @map("updated_at")
   application   Application?   @relation(fields: [applicationId], references: [id])
-  Client        ClientProfile? @relation(fields: [ClientId], references: [userId])
+  client        ClientProfile? @relation(fields: [clientId], references: [userId])
 
   @@map("documents")
 }

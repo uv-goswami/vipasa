@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { prismaClient } from "../lib/prisma"
-import { Prisma } from "../../generated/prisma/Client";
+import { Prisma } from "../../generated/prisma/client";
 
 export const createService = async (req: Request, res: Response) => {
     const {name, description, basePrice, requiredDocs, estimatedDays} = req.body;

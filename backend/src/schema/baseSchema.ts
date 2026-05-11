@@ -22,5 +22,5 @@ export const baseClientProfileSchema = z.object({
     aadharDocUrl: z.url().optional(),
     panDocUrl: z.url().optional(),
     taxId: z.string().optional(),
-    ClientType: z.enum(["Individual", "Corporate", "Government"]),
+    clientType: z.enum(["Individual", "Corporate", "Government"]),
 })
