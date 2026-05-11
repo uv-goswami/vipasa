@@ -1,11 +1,13 @@
 import {Router} from 'express'
-import {authMiddleware} from '../../middlewares/authMiddleware'
-import {requireRole} from '../../middlewares/roleMiddleware'
 import {validateData} from '../../middlewares/validationMiddleware'
-import {onboardClient} from '../../controllers/staff'
+import {registerClient} from '../../controllers/auth'
+import {onboardClientSchema} from '../../schema/authSchema'
 
 const clientRouter:Router = Router();
-clientRouter.post('/', authMiddleware, requireRole(["ADMIN", "STAFF"]), validateData(schema), onboardClient)
+clientRouter.post('/register', validateData(onboardClientSchema), registerClient)
+
+//The below is the Update Profile Route that we will create later on
+//clientRouter.patch('/update', )
 
 
 export default clientRouter;

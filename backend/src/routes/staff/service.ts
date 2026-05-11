@@ -8,6 +8,6 @@ import { createServiceSchema } from "../../schema/createServiceSchema";
 
 const serviceRouter:Router = Router()
 
-serviceRouter.post('/',authMiddleware, requireRole(['ADMIN', 'STAFF']) ,validateData(createServiceSchema),createService)
+serviceRouter.post('/',authMiddleware, requireRole(['Admin', 'Staff']) ,validateData(createServiceSchema),createService)
 
 export default serviceRouter;   

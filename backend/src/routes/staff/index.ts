@@ -1,10 +1,13 @@
 import {Router} from 'express'
 import serviceRouter from './service'
-import clientRouter from './client'
+import ClientRouter from './Client'
+import {requireRole} from '../../middlewares/roleMiddleware'
+import {authMiddleware} from '../../middlewares/authMiddleware'
 
-const staffRouter = Router();
+const StaffRouter = Router();
+StaffRouter.use(authMiddleware, requireRole(["Admin", "Staff"]))
 
-staffRouter.use('/services', serviceRouter);
-staffRouter.use('/clients', clientRouter)
+StaffRouter.use('/services', serviceRouter);
+StaffRouter.use('/Clients', ClientRouter)
 
-export default staffRouter;
+export default StaffRouter;

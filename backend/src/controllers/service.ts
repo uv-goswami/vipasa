@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { prismaClient } from "../lib/prisma"
-import { Prisma } from "../../generated/prisma/client";
+import { Prisma } from "../../generated/prisma/Client";
 
 export const createService = async (req: Request, res: Response) => {
     const {name, description, basePrice, requiredDocs, estimatedDays} = req.body;
@@ -21,7 +21,7 @@ export const createService = async (req: Request, res: Response) => {
             data: service
         })
 
-    }catch (error){
+    }catch (error: unknown){
         if(error instanceof Prisma.PrismaClientKnownRequestError){
             if(error.code === 'P2002'){
                 return res.status(409).json({

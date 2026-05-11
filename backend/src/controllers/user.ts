@@ -34,7 +34,7 @@ export const updateMyProfile = async (req: Request, res: Response) => {
         const userId = (req as any).user.id;
         const {gender, industry, fatherName, dob} = req.body;
 
-        const client = await prismaClient.clientProfile.update({
+        const Client = await prismaClient.ClientProfile.update({
             where: {userId: userId},
             data:{
                 gender: gender,
@@ -53,10 +53,10 @@ export const updateMyProfile = async (req: Request, res: Response) => {
 
         return res.status(200).json({
             "message": "OK",
-            client
+            Client
         })
 
-    }catch(error){
+    }catch(error: unknown){
         console.error("Error while Updating", error);
         res.status(500).json({
             error: "Internal Server error"

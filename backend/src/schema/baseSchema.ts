@@ -14,15 +14,13 @@ export const baseClientProfileSchema = z.object({
 
     fatherName: z.string().optional(),
 
-    addressLine: z.string().optional(),
+    addressLine: z.string(),
     city: z.string().optional(),
     state: z.string().optional(),
-    pincode: z.string().optional(),
+    pincode: z.string(),
 
     aadharDocUrl: z.url().optional(),
-    panDocUrl: z.string().url().optional(),
+    panDocUrl: z.url().optional(),
     taxId: z.string().optional(),
-    clientType: z.enum(["Individual", "Corporate", "Government"]),
-    riskScore: z.number().optional(),
-    assignedStaffId: z.uuid(),
+    ClientType: z.enum(["Individual", "Corporate", "Government"]),
 })

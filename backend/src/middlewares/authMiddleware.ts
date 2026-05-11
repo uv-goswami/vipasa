@@ -18,7 +18,7 @@ export const authMiddleware = (req:Request, res: Response, next: NextFunction) =
     (req as any).user = payload;
 
     next();
-    }catch (error){
+    }catch (error: unknown){
         console.error("Error in authMiddleware: ", error)
         res.status(403).json({
             error: "Forbidden"
