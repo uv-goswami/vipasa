@@ -1,6 +1,85 @@
 import {prismaClient} from "../src/lib/prisma"
 import bcrypt from "bcrypt"
 
+type DemoClientInput = {
+    email: string;
+    phone: string;
+    password: string;
+    firstName: string;
+    lastName?: string;
+    gender: "Male" | "Female";
+    fatherName?: string;
+    dob: Date;
+    addressLine: string;
+    city?: string;
+    state?: string;
+    pincode: string;
+    clientType: "Individual" | "Corporate" | "Government";
+    industry?: string;
+    assignedStaffId: string;
+}
+
+async function seedDemoClient(input:DemoClientInput) {
+    const passwordHash = await bcrypt.hash(input.password, 10)
+
+    const clientProfileData = {
+        gender: input.gender,
+        fatherName: input.fatherName,
+        dob: input.dob,
+        addressLine: input.addressLine,
+        city: input.city,
+        state: input.state,
+        pincode: input.pincode,
+        clientType: input.clientType,
+        industry: input.industry,
+        assignedStaffId: input.assignedStaffId,
+    };
+
+    return prismaClient.user.upsert({
+        where: {
+            email: input.email,
+        },
+        update: {
+            phone: input.phone,
+            firstName: input.firstName,
+            lastName: input.lastName,
+            role: "Client",
+            isActive: true,
+            passwordHash,
+            client: {
+                upsert: {
+                    update: clientProfileData,
+                    create: clientProfileData
+                },
+            },
+        },
+        create: {
+            email: input.email,
+            phone: input.phone,
+            firstName: input.firstName,
+            lastName: input.lastName,
+            role: "Client",
+            isActive: true,
+            passwordHash,
+            client: {
+                create: {
+                    gender: input.gender,
+                    fatherName: input.fatherName,
+                    dob: input.dob,
+                    addressLine: input.addressLine,
+                    city: input.city,
+                    state: input.state,
+                    pincode: input.pincode,
+                    clientType: input.clientType,
+                    industry: input.industry,
+                    assignedStaffId: input.assignedStaffId,
+                },
+            },
+        },
+    })
+    
+}
+
 async function main() {
     const passwordHash = await bcrypt.hash("Password123!", 10);
 
@@ -118,9 +197,47 @@ async function main() {
     },
   });
 
+  await seedDemoClient({
+        email: "priya.sharma@example.com",
+        phone: "9000000001",
+        password: "Password123!",
+        firstName: "Priya",
+        lastName: "Sharma",
+        gender: "Female",
+        fatherName: "Rajesh Sharma",
+        dob: new Date("1998-04-12"),
+        addressLine: "House 21, Model Town",
+        city: "Delhi",
+        state: "Delhi",
+        pincode: "110009",
+        clientType: "Individual",
+        industry: "IT Services",
+        assignedStaffId: adminUser.id,
+  });
+
+  await seedDemoClient({
+        email: "rohan.verma@example.com",
+        phone: "9000000002",
+        password: "Password123!",
+        firstName: "Rohan",
+        lastName: "Verma",
+        gender: "Male",
+        fatherName: "Suresh Verma",
+        dob: new Date("1995-09-20"),
+        addressLine: "Flat 12, Civil Lines",
+        city: "Delhi",
+        state: "Delhi",
+        pincode: "110054",
+        clientType: "Individual",
+        industry: "Retail",
+        assignedStaffId: adminUser.id,
+    });
+
   console.log("Database seeded successfully.")
   console.log("Admin email: admin@vipasa.com")
   console.log("Admin password: Password123!")
+  console.log("1. priya.sharma@example.com / Password123!")
+  console.log("2. rohan.verma@example.com / Password123!")
 
     
 }
