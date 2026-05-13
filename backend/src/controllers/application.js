@@ -1,28 +1,16 @@
-import {Request, Response } from "express";
-import {prismaClient} from "../lib/prisma"
-import {Prisma} from "../../generated/prisma/client"
+import { prismaClient } from "../lib/prisma";
+import { Prisma } from "../../generated/prisma/client";
+export const createApplication = async (req, res) => {
+    const { name, clientId, serviceId, priority, dueDate, description, internalNote, clientNote, metadata } = req.body;
+    const staffId = req.user?.id;
+    try {
+        /*
+
+            Here We will build the business logic to prevent double clicks for applicatuin creation
 
 
-export const createApplication = async (req: Request, res: Response) => {
-    const {name, clientId, serviceId, priority, dueDate, description, internalNote, clientNote, metadata} = req.body;
-
-    const staffId = (req as any).user?.id;
-
-
-    
-    try{
-
-            /* 
-
-                Here We will build the business logic to prevent double clicks for applicatuin creation
-
-
-            */
-
-
-        const applicationNo = `VIPSA-${Date.now()}`
-
-
+        */
+        const applicationNo = `VIPSA-${Date.now()}`;
         const newApplication = await prismaClient.application.create({
             data: {
                 name,
@@ -38,104 +26,83 @@ export const createApplication = async (req: Request, res: Response) => {
                 clientNote,
                 metadata: metadata || {}
             },
-            include:{
-                client: {select: {user:{select: {firstName: true, lastName: true}}}},
-                service: {select: {name: true, basePrice: true}}
+            include: {
+                client: { select: { user: { select: { firstName: true, lastName: true } } } },
+                service: { select: { name: true, basePrice: true } }
             }
-        })
+        });
         res.status(201).json({
             status: "created",
             data: newApplication
-        })
-    } catch(error: unknown){
+        });
+    }
+    catch (error) {
         console.error("Error creating application", error);
-        if (error instanceof Prisma.PrismaClientKnownRequestError){
-            if(error.code === 'P2003'){
-                    return res.status(404).json({
-                        error: "Not Found",
-                        message: "The Provided Client/Service does not exist int the database"
-                    })
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            if (error.code === 'P2003') {
+                return res.status(404).json({
+                    error: "Not Found",
+                    message: "The Provided Client/Service does not exist int the database"
+                });
             }
         }
-        res.status(500).json({error: "Internal server error"})
+        res.status(500).json({ error: "Internal server error" });
     }
-} 
-
-export const updateApplicationStatus = async (req:Request, res: Response) => {
-    const id = req.params.id as string;
-    const {status} = req.body;
-    
-    if(!id){
+};
+export const updateApplicationStatus = async (req, res) => {
+    const id = req.params.id;
+    const { status } = req.body;
+    if (!id) {
         return res.status(400).json({
             error: "Application ID is required"
-        })
-    }
-    try{
-        const existingApplication = await prismaClient.application.findUnique({
-            where: { id }   
         });
-
-        if(!existingApplication){
+    }
+    try {
+        const existingApplication = await prismaClient.application.findUnique({
+            where: { id }
+        });
+        if (!existingApplication) {
             return res.status(404).json({
                 error: "Application not Found"
             });
         }
-
-        const updateData: any = {status};
-        if(status === 'Completed'&& existingApplication.status !== 'Completed'){
-            updateData.completedAt = new Date()
+        const updateData = { status };
+        if (status === 'Completed' && existingApplication.status !== 'Completed') {
+            updateData.completedAt = new Date();
         }
-
         const updatedApplication = await prismaClient.application.update({
-            where: {id},
+            where: { id },
             data: updateData
         });
-
         res.status(200).json({
             message: "Application status updated successfully",
             data: updatedApplication
-        })
-
-
-    }catch (error){
+        });
+    }
+    catch (error) {
         console.error("Error updating application status", error);
         res.status(500).json({
             error: "Internal Server Error"
-        })
-
+        });
     }
-}
-
-
+};
 /* ----------------------------------------------------------------------------
 We need to remove the below function, this function is used in staff/application.ts for now to getApplications,
 -------------------------------------- */
-export const getApplications = async (req:Request, res:Response) => {
-    const user = (req as any).user as {
-        id: string;
-        role: "Admin" | "Staff" |"Client";
-    };
-
-    const rawPage = Number(req.query.page)
-}
-
+export const getApplications = async (req, res) => {
+    const user = req.user;
+    const rawPage = Number(req.query.page);
+};
 //--------------------------------------------------------------------------------
-
-export const getMyApplications = async (req:Request, res:Response) => {
-    const userId = (req as any).user.id;
-
-    const {page, limit} = res.locals.validatedQuery as {
-        page: number;
-        limit: number;
-    };
-
-    const skip = (page-1)*limit;
-
-    try{
+export const getMyApplications = async (req, res) => {
+    const userId = req.user.id;
+    const { page, limit } = res.locals.validatedQuery;
+    const skip = (page - 1) * limit;
+    try {
         const [applications, total] = await Promise.all([
             prismaClient.application.findMany({
                 where: {
-                    clientId:userId,
+                    clientId: userId,
                 },
                 skip,
                 take: limit,
@@ -163,54 +130,47 @@ export const getMyApplications = async (req:Request, res:Response) => {
                         },
                     },
                 },
-
             }),
-
             prismaClient.application.count({
                 where: {
                     clientId: userId,
                 }
             }),
-
         ]);
-
         return res.status(200).json({
             message: "Application fetched successfully",
             pagination: {
                 page,
                 limit,
                 total,
-                totalPages: Math.ceil(total/limit),
+                totalPages: Math.ceil(total / limit),
             },
-            data:applications,
-        })           
-    }catch (error){
+            data: applications,
+        });
+    }
+    catch (error) {
         console.error("Error fetching client applications", error);
-
         return res.status(500).json({
             error: "Internal server Error"
         });
     }
-}
-
-
-export const getMyApplicationById = async (req:Request, res:Response) => {
-    const userId = (req as any).user.id;
-    const id = req.params.id as string;
-
-    if(!id){
+};
+export const getMyApplicationById = async (req, res) => {
+    const userId = req.user.id;
+    const id = req.params.id;
+    if (!id) {
         return res.status(400).json({
             error: "Application Id is required"
         });
-    };
-
-    try{
+    }
+    ;
+    try {
         const application = await prismaClient.application.findFirst({
             where: {
                 id,
                 clientId: userId,
             },
-            select:{
+            select: {
                 id: true,
                 name: true,
                 applicationNo: true,
@@ -218,7 +178,7 @@ export const getMyApplicationById = async (req:Request, res:Response) => {
                 dueDate: true,
                 submittedAt: true,
                 updatedAt: true,
-                completedAt:true,
+                completedAt: true,
                 description: true,
                 clientNote: true,
                 metadata: true,
@@ -232,7 +192,6 @@ export const getMyApplicationById = async (req:Request, res:Response) => {
                         estimatedDays: true,
                     },
                 },
-
                 documents: {
                     select: {
                         id: true,
@@ -245,22 +204,20 @@ export const getMyApplicationById = async (req:Request, res:Response) => {
                 },
             },
         });
-
-        if(!application){
+        if (!application) {
             return res.status(404).json({
                 message: "Appliaction not found",
-            })
+            });
         }
-
         return res.status(200).json({
             message: "Application fetched successfully",
             data: application,
-        })
-    }catch(error){
+        });
+    }
+    catch (error) {
         console.error("Error fetching client application", error);
-
         return res.status(500).json({
             error: "Internal Server Error"
-        })
+        });
     }
-}
+};

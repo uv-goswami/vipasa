@@ -1,12 +1,9 @@
-import {Request, Response} from "express"
-import {prismaClient} from "../lib/prisma"
-import {Prisma} from "../../generated/prisma/client"
-
-export const getMe = async (req: Request, res: Response) => {
-    try{
-        const userId = (req as any).user.id;
+import { prismaClient } from "../lib/prisma";
+export const getMe = async (req, res) => {
+    try {
+        const userId = req.user.id;
         const user = await prismaClient.user.findUnique({
-            where: {id: userId},
+            where: { id: userId },
             select: {
                 id: true,
                 email: true,
@@ -15,73 +12,59 @@ export const getMe = async (req: Request, res: Response) => {
                 lastName: true,
                 role: true
             }
-        })
-
+        });
         res.status(200).json({
             "message": "OK",
             user
-        })
-    }catch (error){
-        console.error("Error while fetching the user: ", error)
+        });
+    }
+    catch (error) {
+        console.error("Error while fetching the user: ", error);
         res.status(500).json({
             error: "Internal Server Error"
-        })
+        });
     }
-
-}
-
-export const updateMyProfile = async (req: Request, res: Response) => {
-    try{
-        const userId = (req as any).user.id;
-        const {gender, industry, fatherName, dob} = req.body;
-
+};
+export const updateMyProfile = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { gender, industry, fatherName, dob } = req.body;
         const client = await prismaClient.clientProfile.update({
-            where: {userId: userId},
-            data:{
+            where: { userId: userId },
+            data: {
                 gender: gender,
-                industry: industry, 
+                industry: industry,
                 fatherName: fatherName,
                 dob: dob,
             },
-            select:{
+            select: {
                 userId: true,
                 gender: true,
                 industry: true,
                 fatherName: true,
                 dob: true
             }
-        })
-
+        });
         return res.status(200).json({
             "message": "OK",
             client
-        })
-
-    }catch(error: unknown){
+        });
+    }
+    catch (error) {
         console.error("Error while Updating", error);
         res.status(500).json({
             error: "Internal Server error"
-        })
-
+        });
     }
-}
-
-
-export const getStaffClients = async (req:Request, res:Response) => {
-    try{
-        const {page, limit, search} = res.locals.validatedQuery as {
-            page: number;
-            limit: number;
-            search?: string;
-        };
-
-        const skip = (page-1)*limit;
-
-        const where: Prisma.UserWhereInput = {
+};
+export const getStaffClients = async (req, res) => {
+    try {
+        const { page, limit, search } = res.locals.validatedQuery;
+        const skip = (page - 1) * limit;
+        const where = {
             role: "Client",
-        }
-
-        if (search && search.length>0){
+        };
+        if (search && search.length > 0) {
             where.OR = [
                 {
                     email: {
@@ -89,11 +72,10 @@ export const getStaffClients = async (req:Request, res:Response) => {
                         mode: "insensitive",
                     },
                 },
-
                 {
                     phone: {
                         contains: search,
-                        mode:"insensitive",
+                        mode: "insensitive",
                     },
                 },
                 {
@@ -108,16 +90,14 @@ export const getStaffClients = async (req:Request, res:Response) => {
                         mode: "insensitive",
                     },
                 },
-                
             ];
         }
-
         const [clients, total] = await Promise.all([
             prismaClient.user.findMany({
                 where,
                 skip,
-                take:limit,
-                orderBy:{
+                take: limit,
+                orderBy: {
                     createdAt: "desc"
                 },
                 select: {
@@ -143,46 +123,39 @@ export const getStaffClients = async (req:Request, res:Response) => {
                             riskScore: true,
                             assignedStaffId: true,
                         },
-                    },  
+                    },
                 },
-            }), 
-
+            }),
             prismaClient.user.count({
                 where,
             }),
         ]);
-
         return res.status(200).json({
             message: "Client fetched successfully",
             pagination: {
                 page,
                 limit,
                 total,
-                totalPages: Math.ceil(total/limit),
+                totalPages: Math.ceil(total / limit),
             },
             data: clients,
         });
-    }catch(error){
-        console.error("Error while fetching staff   slients", error)
-
+    }
+    catch (error) {
+        console.error("Error while fetching staff   slients", error);
         return res.status(500).json({
             error: "internal server error",
-        })
+        });
     }
-}
-
-
-
-export const getStaffClientById = async (req: Request, res: Response) => {
-    try{
-        const {id} = (req as any).params
-
-        if(!id){
+};
+export const getStaffClientById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (!id) {
             return res.status(400).json({
                 error: "Client Id is required",
             });
         }
-
         const client = await prismaClient.user.findFirst({
             where: {
                 id: id,
@@ -217,24 +190,21 @@ export const getStaffClientById = async (req: Request, res: Response) => {
                     },
                 },
             },
-        })
-
-        if(!client){
+        });
+        if (!client) {
             return res.status(404).json({
                 message: "Client not found"
-            })
+            });
         }
-
         return res.status(200).json({
             message: "Client fetched successfully",
             data: client,
-        })
-    }catch(error){
-        console.error("Error while fetching staff client by id: ", error);
-
-        return  res.status(500).json({
-            error: "Internal Server Errror",
-        })
+        });
     }
-
-}
+    catch (error) {
+        console.error("Error while fetching staff client by id: ", error);
+        return res.status(500).json({
+            error: "Internal Server Errror",
+        });
+    }
+};

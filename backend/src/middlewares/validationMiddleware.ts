@@ -18,3 +18,19 @@ export const validateData = (schema: z.ZodTypeAny) => {
         
     }
 }
+
+export const validateQuery = (schema: z.ZodTypeAny) => {
+    return(req: Request, res: Response, next: NextFunction) => {
+        const result = schema.safeParse(req.query)
+
+        if(!result.success){
+            return res.status(400).json({
+                message: "Query Validation Failed",
+                error: z.treeifyError(result.error)
+            })
+        }
+
+        res.locals.validatedQuery = result.data;
+        next();
+    }
+}
