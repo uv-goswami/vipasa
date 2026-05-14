@@ -264,3 +264,109 @@ export const getMyApplicationById = async (req:Request, res:Response) => {
         })
     }
 }
+
+export const getStaffClientApplications = async (req: Request, res: Response) => {
+    try{
+        const clientId = (req as any).params.id;
+        
+        const {page, limit, status} = res.locals.validatedQuery as {
+            page: number;
+            limit: number;
+            status?: "Draft"|"PendingDocuments"| "UnderReview" | "Approved" | "Rejected" | "Completed";
+        }
+
+        if(!clientId){
+            return res.status(400).json({
+                error: "Client ID is required",
+            })
+        }
+
+        const skip = (page - 1) * limit;
+
+        const client = await prismaClient.user.findFirst({
+            where: {
+                id: clientId,
+                role: "Client"
+            },
+            select: {
+                id: true,
+            }
+        })
+
+        if(!client){
+            return res.status(404).json({
+                error: "Client not found",
+            })
+        }
+
+        const where: Prisma.ApplicationWhereInput = {
+            clientId,
+        }
+
+        const [applications, total] = await Promise.all([
+            prismaClient.application.findMany({
+                where,
+                skip,
+                take: limit,
+                orderBy: {
+                    updatedAt: "desc"
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    applicationNo: true,
+                    status: true,
+                    priority: true,
+                    dueDate: true,
+                    submittedAt: true,
+                    completedAt: true,
+                    updatedAt: true,
+                    description: true,
+                    clientNote: true,
+                    service: {
+                        select: {
+                            id: true,
+                            name: true,
+                            basePrice: true,
+                            estimatedDays: true,
+                        },
+                    },
+                    staff: {
+                        select:{
+                            user: {
+                                select:{
+                                    id: true,
+                                    firstName: true,
+                                    lastName: true,
+                                    email: true,
+                                    phone: true,
+                                },
+                            },
+                        },
+                    },
+                },
+            }),
+            prismaClient.application.count({
+                where,
+            }),
+        ]);
+
+        return res.status(200).json({
+            message: "Client application fetched successfully",
+            pagination: {
+                page,
+                limit,
+                total,
+                totalPages: Math.ceil(total/limit),
+            },
+            data: applications,
+        });
+    }catch(error){
+        console.error("Error while fetching staff client applications", error)
+        return res.status(500).json({
+            error: "Internal Server Error",
+        })
+    }
+        
+
+}

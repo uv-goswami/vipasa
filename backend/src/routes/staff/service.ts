@@ -1,13 +1,12 @@
 import { Router } from "express";
-import { authMiddleware } from "../../middlewares/authMiddleware";
-import { createService } from "../../controllers/service";
-import { requireRole } from "../../middlewares/roleMiddleware";
-import { validateData } from "../../middlewares/validationMiddleware";
+import { createService, getStaffServices } from "../../controllers/service";
+import { validateData, validateQuery } from "../../middlewares/validationMiddleware";
 import { createServiceSchema } from "../../schema/createServiceSchema";
+import { staffServiceQuerySchema} from "../../schema/paginationSchema"
 
 
 const serviceRouter:Router = Router()
-
-serviceRouter.post('/',authMiddleware, requireRole(['Admin', 'Staff']) ,validateData(createServiceSchema),createService)
+serviceRouter.get('/', validateQuery(staffServiceQuerySchema), getStaffServices )
+serviceRouter.post('/',validateData(createServiceSchema),createService)
 
 export default serviceRouter;   
