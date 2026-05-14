@@ -1,4 +1,5 @@
 import * as z from 'zod'
+import {paginationQuerySchema} from "./paginationSchema"
 
 export const createApplicationSchema = z.object({
     name: z.string().min(3),
@@ -24,5 +25,15 @@ export const updateApplicationStatusSchema = z.object({
         "Rejected",
         "Completed"
     ])
+})
+
+export const staffClientApplicationsQuerySchema = paginationQuerySchema.extend({
+    status: z.enum([
+        "Draft",
+        "PendngDocuments",
+        "Approved",
+        "Rejected",
+        "Completed",
+    ]).optional()
 })
 
