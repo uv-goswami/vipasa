@@ -9,7 +9,7 @@ import {staffClientApplicationsQuerySchema} from '../../schema/applicationSchema
 
 
 const clientRouter:Router = Router();
-
+    
 clientRouter.get('/', validateQuery(staffClientQuerySchema), getStaffClients)
 clientRouter.get('/:id/applications', validateQuery(staffClientApplicationsQuerySchema), getStaffClientApplications)
 clientRouter.get('/:id', getStaffClientById)

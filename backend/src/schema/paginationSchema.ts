@@ -8,3 +8,9 @@ export const paginationQuerySchema = z.object({
 export const staffClientQuerySchema = paginationQuerySchema.extend({
     search: z.string().trim().optional(),
 })
+
+export const staffServiceQuerySchema = paginationQuerySchema.extend({
+    search: z.string().trim().optional(),
+    isActive: z.enum(["true", "false"]).optional(),
+})
+
