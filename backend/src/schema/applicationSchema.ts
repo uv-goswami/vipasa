@@ -30,7 +30,7 @@ export const updateApplicationStatusSchema = z.object({
 export const staffClientApplicationsQuerySchema = paginationQuerySchema.extend({
     status: z.enum([
         "Draft",
-        "PendngDocuments",
+        "PendingDocuments",
         "Approved",
         "Rejected",
         "Completed",

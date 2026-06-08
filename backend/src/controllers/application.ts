@@ -72,7 +72,10 @@ export const updateApplicationStatus = async (req:Request, res: Response) => {
     }
     try{
         const existingApplication = await prismaClient.application.findUnique({
-            where: { id }   
+            where: { 
+                id,
+                staffId: (req as any).user.id
+            }   
         });
 
         if(!existingApplication){
