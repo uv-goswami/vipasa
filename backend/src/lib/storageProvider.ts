@@ -31,6 +31,6 @@ const fileFilter = (req: any, file: Express.Multer.File, cb:multer.FileFilterCal
 
 export const uploadProvider = multer({
     storage: localStorageEngine,
-    limits: {fileSize: 5*1024*1024},
+    limits: {fileSize: 10*1024*1024},
     fileFilter: fileFilter
 })

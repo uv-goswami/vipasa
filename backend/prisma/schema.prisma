@@ -26,7 +26,7 @@ model User {
 }
 
 model Admin {
-  userId String @id @map("user_Id")
+  userId String @id @map("user_id")
   user   User   @relation(fields: [userId], references: [id])
 
   @@map("admin")
@@ -45,7 +45,7 @@ model ClientProfile {
 
   aadharDocUrl    String?     @map("aadhar_doc_url")
   panDocUrl       String?     @map("pan_doc_url")
-  taxId           String?     @map("tax_ID")
+  taxId           String?     @map("tax_id")
   clientType      ClientType? @map("client_type")
   industry        String?
   riskScore       Int?        @map("risk_score")
@@ -114,8 +114,8 @@ model Application {
 
 model Document {
   id            String         @id @default(uuid()) @map("doc_id")
-  clientId      String?        @map("client_Id")
-  applicationId String?        @map("application_Id")
+  clientId      String?        @map("client_id")
+  applicationId String?        @map("application_id")
   name          String
   docUrl        String         @map("doc_url")
   docType       String         @map("doc_type")
@@ -124,7 +124,7 @@ model Document {
   application   Application?   @relation(fields: [applicationId], references: [id])
   client        ClientProfile? @relation(fields: [clientId], references: [userId])
 
-  @@map("documents")
+  @@map("document")
 }
 
 model Service {
@@ -139,7 +139,7 @@ model Service {
   updatedAt     DateTime      @updatedAt @map("updated_at")
   applications  Application[]
 
-  @@map("services")
+  @@map("service")
 }
 
 enum Role {
