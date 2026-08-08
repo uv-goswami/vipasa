@@ -15,7 +15,7 @@ export const onboardClientSchema = baseUserSchema
     })
 
 export const loginSchema = z.object({
-    email: z.email().optional(),
+    email: z.email().optional(),    
     phone: z.string().length(10).optional(),
     password: z.string().min(6),
 }).refine((data) => {

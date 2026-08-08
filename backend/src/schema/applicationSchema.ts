@@ -31,9 +31,14 @@ export const staffClientApplicationsQuerySchema = paginationQuerySchema.extend({
     status: z.enum([
         "Draft",
         "PendingDocuments",
+        "UnderReview",
         "Approved",
         "Rejected",
-        "Completed",
-    ]).optional()
+        "Completed"
+    ]).optional(),
+
+    search: z.string().trim().optional(),
+    clientId: z.uuid().optional(),
+    serviceId: z.uuid().optional(),
 })
 
