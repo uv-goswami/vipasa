@@ -607,7 +607,7 @@ if (!id) {
 try {
     const application = await prismaClient.application.findUnique({
     where: { id },
-    select: { clientId: true, status: true },
+    select: { clientId: true, status: true, serviceId: true },
     });
 
     if (!application) {
@@ -623,6 +623,31 @@ try {
         error: "Only draft applications can be submitted",
         currentStatus: application.status,
     });
+    }
+
+    // Fetch service details and document count
+    const [service, docCount] = await Promise.all([
+        prismaClient.service.findUnique({
+            where: { id: application.serviceId },
+            select: { requiredDocs: true },
+        }),
+        prismaClient.document.count({
+            where: { applicationId: id },
+        }),
+        ]);
+
+        if (!service) {
+        return res.status(404).json({ error: "Service not found" });
+        }
+
+        const requiredCount = service.requiredDocs?.length || 0;
+        if (docCount < requiredCount) {
+        return res.status(400).json({
+            error: "Missing required documents",
+            required: requiredCount,
+            uploaded: docCount,
+            message: `Please upload all required documents (${requiredCount} needed) before submitting.`,
+        });
     }
 
     // Update status and submittedAt

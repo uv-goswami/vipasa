@@ -124,7 +124,7 @@ model Document {
   application   Application?   @relation(fields: [applicationId], references: [id])
   client        ClientProfile? @relation(fields: [clientId], references: [userId])
 
-  @@map("documents")
+  @@map("document")
 }
 
 model Service {
