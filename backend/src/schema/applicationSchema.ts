@@ -42,3 +42,11 @@ export const staffClientApplicationsQuerySchema = paginationQuerySchema.extend({
     serviceId: z.uuid().optional(),
 })
 
+
+export const updateApplicationSchema = z.object({
+  description: z.string().min(1).optional(),
+  clientNote: z.string().min(1).optional(),
+  internalNote: z.string().min(1).optional(),
+  dueDate: z.coerce.date().optional(),
+  priority: z.enum(["Low", "Normal", "High", "Urgent"]).optional(),
+});

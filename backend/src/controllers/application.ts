@@ -597,55 +597,114 @@ export const getStaffApplicationById = async (req: Request, res: Response) => {
 
 
 export const submitApplication = async (req: Request, res: Response) => {
-  const userId = (req as any).user.id;
-  const { id } = req.params as {id:string};
+const userId = (req as any).user.id;
+const { id } = req.params as {id:string};
 
-  if (!id) {
+if (!id) {
     return res.status(400).json({ error: "Application ID is required" });
-  }
+}
 
-  try {
+try {
     const application = await prismaClient.application.findUnique({
-      where: { id },
-      select: { clientId: true, status: true },
+    where: { id },
+    select: { clientId: true, status: true },
     });
 
     if (!application) {
-      return res.status(404).json({ error: "Application not found" });
+    return res.status(404).json({ error: "Application not found" });
     }
 
     if (application.clientId !== userId) {
-      return res.status(403).json({ error: "Forbidden" });
+    return res.status(403).json({ error: "Forbidden" });
     }
 
     if (application.status !== "Draft") {
-      return res.status(400).json({
+    return res.status(400).json({
         error: "Only draft applications can be submitted",
         currentStatus: application.status,
-      });
+    });
     }
 
     // Update status and submittedAt
     const updated = await prismaClient.application.update({
-      where: { id },
-      data: {
+    where: { id },
+    data: {
         status: "PendingDocuments",
         submittedAt: new Date(),
-      },
-      select: {
+    },
+    select: {
         id: true,
         status: true,
         submittedAt: true,
         updatedAt: true,
-      },
+    },
     });
 
     return res.status(200).json({
-      message: "Application submitted successfully",
-      data: updated,
+    message: "Application submitted successfully",
+    data: updated,
     });
-  } catch (error) {
+} catch (error) {
     console.error("Error submitting application:", error);
     return res.status(500).json({ error: "Internal Server Error" });
-  }
+}
+};
+
+
+
+export const updateApplication = async (req: Request, res: Response) => {
+    const user = (req as any).user as { id: string; role: string };
+    const { id } = req.params as {id:string};
+    const { description, clientNote, internalNote, dueDate, priority } = req.body;
+
+    if (!id) {
+        return res.status(400).json({ error: "Application ID is required" });
+    }
+
+    try {
+        const existing = await prismaClient.application.findUnique({
+        where: { id },
+        select: { staffId: true },
+        });
+
+        if (!existing) {
+        return res.status(404).json({ error: "Application not found" });
+        }
+
+        if (user.role === "Staff" && existing.staffId !== user.id) {
+        return res.status(403).json({ error: "Forbidden" });
+        }
+
+        const updateData: any = {};
+        if (description !== undefined) updateData.description = description;
+        if (clientNote !== undefined) updateData.clientNote = clientNote;
+        if (internalNote !== undefined) updateData.internalNote = internalNote;
+        if (dueDate !== undefined) updateData.dueDate = dueDate;
+        if (priority !== undefined) updateData.priority = priority;
+
+        const updated = await prismaClient.application.update({
+        where: { id },
+        data: updateData,
+        select: {
+            id: true,
+            name: true,
+            applicationNo: true,
+            status: true,
+            priority: true,
+            dueDate: true,
+            description: true,
+            clientNote: true,
+            internalNote: true,
+            updatedAt: true,
+        },
+        });
+
+        return res.status(200).json({
+        message: "Application updated successfully",
+        data: updated,
+        });
+    } catch (error) {
+        console.error("Error updating application:", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
 };
