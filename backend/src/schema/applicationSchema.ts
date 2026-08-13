@@ -24,7 +24,8 @@ export const updateApplicationStatusSchema = z.object({
         "Approved",
         "Rejected",
         "Completed"
-    ])
+    ]),
+    decisionReason: z.string().optional(),
 })
 
 export const staffClientApplicationsQuerySchema = paginationQuerySchema.extend({

@@ -1,6 +1,7 @@
 import {Request, Response } from "express";
 import {prismaClient} from "../lib/prisma"
 import {Prisma} from "../../generated/prisma/client"
+import {ApplicationService} from "../service/applicationService"
 
 
 export const createApplication = async (req: Request, res: Response) => {
@@ -61,9 +62,10 @@ export const createApplication = async (req: Request, res: Response) => {
     }
 } 
 
+/*
 export const updateApplicationStatus = async (req:Request, res: Response) => {
     const id = req.params.id as string;
-    const {status} = req.body;
+    const {status, decisionReason} = req.body;
     
     if(!id){
         return res.status(400).json({
@@ -107,6 +109,36 @@ export const updateApplicationStatus = async (req:Request, res: Response) => {
         })
 
     }
+}
+    */
+
+
+export const updateApplicationStatus = async (req:Request, res:Response) => {
+    const {id} = req.params as {id:string}
+    const {status, decisionReason} = req.body
+    const user = (req as any).user as {id:string; role:string}
+
+    try{
+        const updated = await ApplicationService.updateStatus(
+            id,
+            status,
+            decisionReason,
+            user.id,
+            user.role,   
+        )
+
+        return res.status(200).json({
+            message: "Application successfully updated",
+            data: updated,
+        })
+
+    }catch (error: unknown){
+        console.error("Error updating application status", error);
+        res.status(500).json({
+            error: "Internal Server Error"
+        })
+    }
+
 }
 
 export const getMyApplications = async (req:Request, res:Response) => {

@@ -176,7 +176,10 @@ enum Priority {
 }
 
 enum ApplicationDecision {
+  Draft
   Approved
   Rejected
-  Pending     
+  PendingDocuments
+  UnderReview
+  Completed
 }
